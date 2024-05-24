@@ -49,16 +49,19 @@ def main():
     # Handle the request
     if request.startswith("GET / "):
         try:
+            # Open the file so we can serve it to the user.
             with open("index.html", "r") as f:
                 response_body = f.read()
-            
+            # If the response is found and OK, send the typical success response (200)
             response_header = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n"
-            client_socket.sendall(response_header.encode() + response_body.encode())
+            client_socket.sendall(response_header.encode() + response_body.encode()) # Send the response
         except FileNotFoundError:
             print("Failed to open index.html")
+            # If the page is not found, send the typical error response (404)
             not_found_response = "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n"
-            client_socket.sendall(not_found_response.encode())
+            client_socket.sendall(not_found_response.encode()) # Send the response
     else:
+        # Else, we have a bad request, so send and error message.
         bad_request_response = "HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n"
         client_socket.sendall(bad_request_response.encode())
     
