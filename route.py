@@ -9,6 +9,9 @@ class Route:
         Self.left = None
         Self.right = None
 
+
+    def create_route(path, rhandler):
+        return Route(path, rhandler)
     # Get left
 
     def get_left():
@@ -23,20 +26,29 @@ class Route:
     def add_route(root, path, rhandler):
 
         # Let's check if the route exists
-        if (root == None):
+        if root is None:
             # Create new Route.
-            root = Route(path, rhandler)
-            return
+            return create_route(path, rhandler)
+        
+        comparison = strcmp(path, root.path)
 
-        if (strcmp(path, root.path) > 0):
-            # Add the left child route
-            add_route(root.left, path, rhandler)
+        if comparison < 0:
+            if root.left is None:
+                root.left = create_route(path, rhandler)
+
+            else:
+                # Otherwise, add the right child route.
+                add_route(root.left, path, rhandler)
 
         else:
-            # Otherwise, add the right child route.
-            add_route(root.right, path, rhandler)
+            if root.right is None:
+                root.right = create_route(path, rhandler)
 
-    
+            else:
+                add_route(root.right, path, rhandler)
+
+        return root
+
     # Routing methods
 
     def index(Socket client):
