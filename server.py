@@ -15,7 +15,7 @@ def main():
         print("Server is listening on port 8000")
 
         while True:
-            client, _ = server_socket.accept()
+            client, _ = s.accept()
             request = client.recv(1024).decode()
             controller.handle_request(client, request)
             client.close()
