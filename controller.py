@@ -21,7 +21,7 @@ class Controller:
         # Check request length.
         if len(req_query) > 0:
             # create new array of lines for processing.
-            req_line = req_lines[0]
+            req_line = req_query[0]
             # Get individual parts
             parts = req_line.split(' ')
             if len(parts) >= 2:
@@ -47,8 +47,28 @@ class Controller:
     @staticmethod
     def send_not_found(Self, client):
         not_found_response = "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n"
-        client_socket.sendall(not_found_response.encode('utf-8'))
+        client.sendall(not_found_response.encode('utf-8'))
 
     @staticmethod
-    def send_bad_request():
-        pass
+    def send_bad_request(Self, client):
+        bad_request_response = "HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n"
+        client.sendall(bad_request_response.encode('utf-8'))
+
+    @@staticmethod
+    def serve_file(client, path):
+        try:
+            with open(file_path, 'r') as page:
+                response_body = page.read()
+            response_header = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n"
+            # Send all of the data off.
+            client.sendall(response_header.encode('utf-8') + response_body)
+        except FileNotFoundError:
+            Self.send_not_found(client)
+
+    # Now, we can add functions to handle each route.
+
+    def load_index(client, file):
+        Controller.serve_file(client, file)
+
+    def load_about(client, file):
+        Controller.serve_file(client, file)
