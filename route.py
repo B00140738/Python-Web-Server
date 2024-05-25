@@ -11,12 +11,13 @@ class Route:
 
     # Get left
 
-    def get_left(self):
+    def get_left():
         return self.left
     
     # Get right
     
-    def get_right(self):
+    def get_right():
         return self.right
     
     
+    def add_route(root, path, rhandler): 
