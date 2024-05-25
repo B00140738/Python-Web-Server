@@ -6,7 +6,7 @@ class Controller:
 
     def __init__(Self):
         routes = {}
-
+ 
     # Function to add a new route to our overall list of routes.
 
     @staticmethod
