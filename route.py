@@ -1,3 +1,7 @@
+from typing import Self
+from strcmp import strcmp
+
+
 class Route:
     
     # Route constructor
@@ -9,9 +13,10 @@ class Route:
         Self.left = None
         Self.right = None
 
-
+    @staticmethod
     def create_route(path, rhandler):
         return Route(path, rhandler)
+
     # Get left
 
     def get_left():
@@ -22,30 +27,30 @@ class Route:
     def get_right():
         return Self.right
     
-    
+    @staticmethod 
     def add_route(root, path, rhandler):
 
         # Let's check if the route exists
         if root is None:
             # Create new Route.
-            return create_route(path, rhandler)
+            return Route.create_route(path, rhandler)
         
         comparison = strcmp(path, root.path)
 
         if comparison < 0:
             if root.left is None:
-                root.left = create_route(path, rhandler)
+                root.left = Route.create_route(path, rhandler)
 
             else:
                 # Otherwise, add the right child route.
-                add_route(root.left, path, rhandler)
+                Route.add_route(root.left, path, rhandler)
 
         else:
             if root.right is None:
-                root.right = create_route(path, rhandler)
+                root.right = Route.create_route(path, rhandler)
 
             else:
-                add_route(root.right, path, rhandler)
+                Route.add_route(root.right, path, rhandler)
 
         return root
 
