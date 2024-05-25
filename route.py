@@ -1,6 +1,6 @@
 from typing import Self
 from strcmp import strcmp
-
+from controller import Controller
 
 class Route:
     
