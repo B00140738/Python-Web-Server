@@ -1,79 +1,65 @@
 import socket
-import os
+
+def handle_request(client_socket):
+    try:
+        request = client_socket.recv(1024).decode()
+        print(f"Received request: {request}")
+
+        request_lines = request.split('\r\n')
+        if len(request_lines) > 0:
+            request_line = request_lines[0]
+            parts = request_line.split(' ')
+            if len(parts) >= 2:
+                method = parts[0]
+                path = parts[1]
+
+                if method == 'GET':
+                    if path == '/':
+                        serve_file(client_socket, 'index.html')
+                    elif path == '/about':
+                        serve_file(client_socket, 'about.html')
+                    else:
+                        send_not_found(client_socket)
+                else:
+                    send_bad_request(client_socket)
+    except Exception as e:
+        print(f"Error handling request: {e}")
+    finally:
+        client_socket.close()
+
+def serve_file(client_socket, file_path):
+    try:
+        with open(file_path, 'r') as f:
+            response_body = f.read()
+        response_header = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n"
+        client_socket.sendall(response_header.encode('utf-8') + response_body.encode('utf-8'))
+    except FileNotFoundError:
+        send_not_found(client_socket)
+
+def send_not_found(client_socket):
+    not_found_response = "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n"
+    client_socket.sendall(not_found_response.encode('utf-8'))
+
+def send_bad_request(client_socket):
+    bad_request_response = "HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n"
+    client_socket.sendall(bad_request_response.encode('utf-8'))
 
 def main():
-    # Initialize the socket
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    
-    # Set up the server address
     server_address = ('', 8000)
-    
-    # Bind the socket to the address
+
     try:
         server_socket.bind(server_address)
-    except socket.error as e:
-        print(f"Bind failed: {e}")
-        server_socket.close()
-        return
-    
-    # Start listening for incoming connections
-    try:
         server_socket.listen(10)
-    except socket.error as e:
-        print(f"Listen failed: {e}")
-        server_socket.close()
-        return
-    
-    # Inform the user that the server is running
-    print("Server is listening on port 8000")
-    
-    # Accept an incoming connection
-    try:
-        client_socket, client_address = server_socket.accept()
-    except socket.error as e:
-        print(f"Accept failed: {e}")
-        server_socket.close()
-        return
+        print("Server is listening on port 8000")
 
-    # Receive data from the client
-    try:
-        request = client_socket.recv(256).decode()
-    except socket.error as e:
-        print(f"Receive failed: {e}")
-        client_socket.close()
+        while True:
+            client_socket, client_address = server_socket.accept()
+            handle_request(client_socket)
+    except Exception as e:
+        print(f"Server error: {e}")
+    finally:
         server_socket.close()
-        return
-    
-    print(f"Received request: {request}")
-    
-    # Handle the request
-    if request.startswith("GET / "):
-        try:
-            # Open the file so we can serve it to the user.
-            with open("index.html", "r") as f:
-                response_body = f.read()
-            # If the response is found and OK, send the typical success response (200)
-            response_header = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n"
-            client_socket.sendall(response_header.encode() + response_body.encode()) # Send the response
-        except FileNotFoundError:
-            print("Failed to open index.html")
-            # If the page is not found, send the typical error response (404)
-            not_found_response = "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n"
-            client_socket.sendall(not_found_response.encode()) # Send the response
-    else:
-        # Else, we have a bad request, so send and error message.
-        bad_request_response = "HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n"
-        client_socket.sendall(bad_request_response.encode())
-    
-    # Cleanup
-    client_socket.close()
-    server_socket.close()
-    
-    # Return 0 to indicate success
-    return 0
 
 if __name__ == "__main__":
     main()
-
-
-
