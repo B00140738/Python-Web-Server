@@ -1,7 +1,7 @@
 import socket
 from controller import Controller
 from typing import Self
-
+from route import Route
 class Server:
 
     def __init__(Self, routes):
