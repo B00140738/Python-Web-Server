@@ -54,8 +54,8 @@ class Route:
 
         return root
 
-     @staticmethod
-     def find_route(root, path):
+    @staticmethod
+    def find_route(root, path):
         # Check if the root exists.
         if root is None:
             return None
