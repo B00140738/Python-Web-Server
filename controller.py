@@ -1,4 +1,5 @@
-from typing import Self 
+from typing import Self
+from route import Route 
 
 class Controller:
     
@@ -69,7 +70,7 @@ class Controller:
     @staticmethod
     def serve_file(client, path):
         try:
-            with open(file_path, 'r') as page:
+            with open(path, 'r') as page:
                 response_body = page.read()
             response_header = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n"
             # Send all of the data off.
