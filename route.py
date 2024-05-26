@@ -1,6 +1,5 @@
 from typing import Self
 from strcmp import strcmp
-from controller import Controller
 
 class Route:
     
@@ -65,8 +64,9 @@ class Route:
         if comparison == 0:
             return root.rhandler
         elif comparison < 0:
-            return ROute.find_route(root.left, path)
+            return Route.find_route(root.left, path)
         else:
             return Route.find_route(root.right, path)
+
 
 

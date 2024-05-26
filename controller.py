@@ -1,88 +1,63 @@
-from typing import Self
-from route import Route 
+from route import Route
 
 class Controller:
-    
-    # Class constructor
+    def __init__(self):
+        self.routes = None
 
-    def __init__(Self):
-        Self.routes = None
-    
-    def set_routes(Self, routes):
-        Self.routes = routes
+    def set_routes(self, routes):
+        self.routes = routes
 
-    # Function to add a new route to our overall list of routes.
-
-    @staticmethod
-    def add_route(Self, path, rhandler):
-        if Self.routes is None:
-            Self.routes = Route(path, rhandler)
+    def add_route(self, path, rhandler):
+        if self.routes is None:
+            self.routes = Route(path, rhandler)
         else:
-            # Else, if there are routes add another one
-            Route.add_route(Self.routes, path, rhandler)
+            Route.add_route(self.routes, path, rhandler)
 
-
-    # method to handle all user requests.
-
-    @staticmethod
-    def handle_request(Self, client, request):
-        req_query = request.split('\r\n')
-        # Check request length.
-        if len(req_query) > 0:
-            # create new array of lines for processing.
-            req_line = req_query[0]
-            # Get individual parts
-            parts = req_line.split(' ')
+    def handle_request(self, client_socket, request):
+        request_lines = request.split('\r\n')
+        if len(request_lines) > 0:
+            request_line = request_lines[0]
+            parts = request_line.split(' ')
             if len(parts) >= 2:
                 method = parts[0]
-                # Get the path from the parts array
-                # the format is parts[method, path]
                 path = parts[1]
 
-                # Now, let's check the method.
                 if method == 'GET':
-                    # Get/serve the file to the user.
-                    rhandler = Self.find_route_handler(path)
-
-                if rhandler:
-                    rhandler(client)
-                # Otherwise, inform the user that the page has not been found (404)
+                    handler = self.find_route_handler(path)
+                    if handler:
+                        handler(client_socket)
+                    else:
+                        self.send_not_found(client_socket)
                 else:
-                    Self.send_not_found(client)
-            else:
-                Self.send_bad_request(client)
+                    self.send_bad_request(client_socket)
 
-
-    @staticmethod
-    def find_route_handler(Self, path):
-        return Route.find_route(Self.routes, path)
+    def find_route_handler(self, path):
+        return Route.find_route(self.routes, path)
 
     @staticmethod
-    def send_not_found(Self, client):
+    def send_not_found(client_socket):
         not_found_response = "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n"
-        client.sendall(not_found_response.encode('utf-8'))
+        client_socket.sendall(not_found_response.encode('utf-8'))
 
     @staticmethod
-    def send_bad_request(Self, client):
+    def send_bad_request(client_socket):
         bad_request_response = "HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n"
-        client.sendall(bad_request_response.encode('utf-8'))
+        client_socket.sendall(bad_request_response.encode('utf-8'))
 
     @staticmethod
-    def serve_file(client, path):
+    def serve_file(client_socket, file_path):
         try:
-            with open(path, 'r') as page:
+            with open(file_path, 'r') as page:
                 response_body = page.read()
             response_header = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n"
-            # Send all of the data off.
-            client.sendall(response_header.encode('utf-8') + response_body)
+            client_socket.sendall(response_header.encode('utf-8') + response_body.encode('utf-8'))
         except FileNotFoundError:
-            Self.send_not_found(client)
+            Controller.send_not_found(client_socket)
 
-    # Now, we can add functions to handle each route.
+    @staticmethod
+    def handle_root(client_socket):
+        Controller.serve_file(client_socket, 'index.html')
 
-    def handle_root(client):
-        Controller.serve_file(client, "index.html")
-
-    def handle_about(client):
-        Controller.serve_file(client, "about.html")
-
+    @staticmethod
+    def handle_about(client_socket):
+        Controller.serve_file(client_socket, 'about.html')
