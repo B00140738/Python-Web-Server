@@ -1,3 +1,5 @@
+import os
+
 from route import Route
 
 class Controller:
@@ -45,9 +47,15 @@ class Controller:
         client_socket.sendall(bad_request_response.encode('utf-8'))
 
     @staticmethod
-    def serve_file(client_socket, file_path):
+    def serve_file(client_socket, file_path, base_dir='pages'):
         try:
-            with open(file_path, 'r') as page:
+            # Construct the full file path
+            if base_dir:
+                full_path = os.path.join(base_dir, file_path)
+            else:
+                full_path = file_path
+
+            with open(full_path, 'r') as page:
                 response_body = page.read()
             response_header = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n"
             client_socket.sendall(response_header.encode('utf-8') + response_body.encode('utf-8'))
@@ -56,7 +64,7 @@ class Controller:
 
     @staticmethod
     def handle_root(client_socket):
-        Controller.serve_file(client_socket, 'index.html')
+        Controller.serve_file(client_socket, 'index.html', base_dir='')
 
     @staticmethod
     def handle_about(client_socket):

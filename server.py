@@ -5,7 +5,6 @@ from route import Route
 class Server:
     def __init__(self, routes):
         self.controller = Controller()
-        # Now initialise the routes
         self.initialise_routes(routes)
     
     def set_routes(self, routes):
@@ -17,7 +16,6 @@ class Server:
     def initialise_routes(self, routes):
         for route in routes:
             self.controller.add_route(route.path, route.rhandler)
-        return
 
 def main():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -26,11 +24,11 @@ def main():
     # Add the default routes
     routes = [
         Route('/', Controller.handle_root),
-        Route('/about', Controller.handle_about)
-        # Add more routes as you see fit.
+        Route('/pages/about', Controller.handle_about)
+        # Add more routes as needed
     ]
     
-    # Create the server.
+    # Create the server
     server = Server(routes)
 
     try:
