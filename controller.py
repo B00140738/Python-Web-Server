@@ -29,7 +29,8 @@ class Controller:
                     if handler:
                         handler(client_socket)
                     else:
-                        self.send_not_found(client_socket)
+                        # Try to serve file from 'pages' directory
+                        self.serve_file(client_socket, path)
                 else:
                     self.send_bad_request(client_socket)
 
@@ -47,13 +48,17 @@ class Controller:
         client_socket.sendall(bad_request_response.encode('utf-8'))
 
     @staticmethod
-    def serve_file(client_socket, file_path, base_dir='pages'):
+    def serve_file(client_socket, path):
         try:
-            # Construct the full file path
-            if base_dir:
-                full_path = os.path.join(base_dir, file_path)
+            # Check if the path is root or within pages
+            if path == '/':
+                file_path = 'index.html'
+                base_dir = ''
             else:
-                full_path = file_path
+                file_path = path.lstrip('/') + '.html'
+                base_dir = 'pages'
+            
+            full_path = os.path.join(base_dir, file_path)
 
             with open(full_path, 'r') as page:
                 response_body = page.read()
@@ -64,8 +69,8 @@ class Controller:
 
     @staticmethod
     def handle_root(client_socket):
-        Controller.serve_file(client_socket, 'index.html', base_dir='')
+        Controller.serve_file(client_socket, '/')
 
     @staticmethod
     def handle_about(client_socket):
-        Controller.serve_file(client_socket, 'about.html')
+        Controller.serve_file(client_socket, '/pages/about')

@@ -24,8 +24,7 @@ def main():
     # Add the default routes
     routes = [
         Route('/', Controller.handle_root),
-        Route('/pages/about', Controller.handle_about)
-        # Add more routes as needed
+        # Route('/pages/about', Controller.handle_about)  # This is no longer needed for each page
     ]
     
     # Create the server
