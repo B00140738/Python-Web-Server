@@ -27,11 +27,16 @@ class Server:
 def main():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     addr = ('', 8000)
-
-    server = Server()
-    controller = Controller()
-    controller.add_route('/', controller.handle_root)
-    controller.add_route('/about', controller.handle_about)
+    
+    # Add the default routes
+    routes = [
+        Route('/', Controller.handle_root),
+        Route('/about', Controller.handle_about)
+        # Add more routes as you see fit.
+    ]
+    
+    # Create the server.
+    server = Server(routes)
 
     try:
         s.bind(addr)

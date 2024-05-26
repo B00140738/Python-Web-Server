@@ -54,10 +54,19 @@ class Route:
 
         return root
 
-    # Routing methods
+     @staticmethod
+     def find_route(root, path):
+        # Check if the root exists.
+        if root is None:
+            return None
+        
+        comparison = strcmp(path, root.path)
 
-    def index(Socket client):
-        # Empty method for now
-    
-    def about(Socket client):
-        # Empty method for now
+        if comparison == 0:
+            return root.rhandler
+        elif comparison < 0:
+            return ROute.find_route(root.left, path)
+        else:
+            return Route.find_route(root.right, path)
+
+

@@ -5,13 +5,21 @@ class Controller:
     # Class constructor
 
     def __init__(Self):
-        routes = {}
- 
+        Self.routes = None
+    
+    def set_routes(Self, routes):
+        Self.routes = routes
+
     # Function to add a new route to our overall list of routes.
 
     @staticmethod
     def add_route(Self, path, rhandler):
-        Self.routes[path] = rhandler
+        if Self.routes is None:
+            Self.routes = Route(path, rhandler)
+        else:
+            # Else, if there are routes add another one
+            Route.add_route(Self.routes, path, rhandler)
+
 
     # method to handle all user requests.
 
@@ -33,7 +41,7 @@ class Controller:
                 # Now, let's check the method.
                 if method == 'GET':
                     # Get/serve the file to the user.
-                    rhandler = Self.routes.get(path)
+                    rhandler = Self.find_route_handler(path)
 
                 if rhandler:
                     rhandler(client)
@@ -45,6 +53,10 @@ class Controller:
 
 
     @staticmethod
+    def find_route_handler(Self, path):
+        return Route.find_route(Self.routes, path)
+
+    @staticmethod
     def send_not_found(Self, client):
         not_found_response = "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n"
         client.sendall(not_found_response.encode('utf-8'))
@@ -54,7 +66,7 @@ class Controller:
         bad_request_response = "HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n"
         client.sendall(bad_request_response.encode('utf-8'))
 
-    @@staticmethod
+    @staticmethod
     def serve_file(client, path):
         try:
             with open(file_path, 'r') as page:
@@ -67,8 +79,9 @@ class Controller:
 
     # Now, we can add functions to handle each route.
 
-    def load_index(client, file):
-        Controller.serve_file(client, file)
+    def handle_root(client):
+        Controller.serve_file(client, "index.html")
 
-    def load_about(client, file):
-        Controller.serve_file(client, file)
+    def handle_about(client):
+        Controller.serve_file(client, "about.html")
+
